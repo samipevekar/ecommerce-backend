@@ -178,7 +178,7 @@ app.post("/signup",async(req,res)=>{
 
     const data = {
         user:{
-            id:user.id
+            id:user.id,
         }
     }
 
@@ -210,6 +210,11 @@ app.post('/login',async(req,res)=>{
         res.json({success:false,errors:"Wrong Email Id"})
     }
 })
+
+
+
+
+
 
 //creating endpoint for newcollection data
 app.get("/newcollections", async (req, res) => {
@@ -248,6 +253,19 @@ const fetchUser = async(req,res,next)=>{
         }
     }
 }
+
+// fetching signup data for frontend
+app.get('/userdata',fetchUser, async (req, res) => {
+    try {
+        const userId = req.user.id; 
+        const userData = await Users.findById(userId,{name:1,email:1}); 
+        res.json(userData); 
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 
 //creating endpoint for adding products in cartdata
 app.post("/addtocart",fetchUser,async(req,res)=>{
