@@ -6,9 +6,19 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const session = require("express-session")
+const passport = require("passport")
+const OAuth2Strategy = require("passport-google-oauth2")
+const userdb = require("./GoogleModel/googleSchema")
+
+const clientid = "118920239396-in6o5g07rpdk1o34v863b3ktmd0im3s9.apps.googleusercontent.com"
+const clientsecret = "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"
 
 app.use(express.json());    // response data will automatically parsed
-app.use(cors());      
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true 
+}));      
 
 // Database connection with mongodb
 mongoose.connect("mongodb+srv://samipevekar:1234sami@cluster0.47tb6yj.mongodb.net/e-commerce")
@@ -19,12 +29,94 @@ mongoose.connect("mongodb+srv://samipevekar:1234sami@cluster0.47tb6yj.mongodb.ne
     console.error("MongoDB connection error:", error);
 });
 
-   
+
 
 //API Creation
 
 app.get('/',(req,res)=>{
     res.send("hello world")
+})
+
+//setup session
+app.use(session({
+    secret:"12343lksafkkakflla",
+    resave:false,
+    saveUninitialized:true
+}))
+
+//setup passport 
+app.use(passport.initialize())
+app.use(passport.session())
+
+passport.use(
+    new OAuth2Strategy({
+        clientID:clientid,
+        clientSecret:clientsecret,
+        callbackURL:"/auth/google/callback",
+        scope:["profile","email"]
+    },
+    async(accessToken,refreshToken,profile,done)=>{
+        console.log(profile)
+        try {
+            let user = await userdb.findOne({googleId:profile.id})
+            if(!user){
+                let cart = {}
+                for (let i = 0; i < 300; i++) {
+                cart[i] = 0;        
+    }
+                user = new userdb({
+                    googleId:profile.id,
+                    displayName:profile.displayName,
+                    email:profile.email,
+                    image:profile.photos[0].value,
+                    cartData:cart,
+                    refreshToken: refreshToken
+                })
+
+                await user.save()
+            }
+
+            return done(null,user)
+
+        } catch (error) {
+            return done(error,null)
+        }
+    }
+    )
+)
+
+passport.serializeUser((user,done)=>{
+    done(null,user)
+})
+
+passport.deserializeUser((user,done)=>{
+    done(null,user)
+})
+
+// initial google oauth login
+app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
+
+app.get("/auth/google/callback",passport.authenticate("google",{
+    successRedirect:"http://localhost:3000",
+    failureRedirect:"http://localhost:3000"
+}))
+
+//get google login data
+app.get("/login/success",async(req,res)=>{
+    console.log("rewqqqq",req.user)
+    if(req.user){
+        res.status(200).json({message:"user login",user:req.user})
+    }
+    else{
+        res.status(400).json({message:"not Authorized"})
+    }
+})
+
+app.get("/logout",(req,res,next)=>{
+    req.logOut(function(err){
+        if(err){return next(err)}
+        res.redirect("localhost:3000")
+    })
 })
 
 // Image storage engine
