@@ -97,8 +97,8 @@ passport.deserializeUser((user,done)=>{
 app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
 
 app.get("/auth/google/callback",passport.authenticate("google",{
-    successRedirect:"http://localhost:3000",
-    failureRedirect:"http://localhost:3000"
+    successRedirect:"https://ecomevia.netlify.app/",
+    failureRedirect:"https://ecomevia.netlify.app/"
 }))
 
 //get google login data
@@ -115,7 +115,7 @@ app.get("/login/success",async(req,res)=>{
 app.get("/logout",(req,res,next)=>{
     req.logOut(function(err){
         if(err){return next(err)}
-        res.redirect("localhost:3000")
+        res.redirect("https://ecomevia.netlify.app/")
     })
 })
 
