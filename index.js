@@ -16,7 +16,7 @@ const clientsecret = "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"
 
 app.use(express.json());    // response data will automatically parsed
 app.use(cors({
-    origin: 'https://ecomevia.netlify.app/',
+    origin: 'http://localhost:3000',
     credentials: true 
 }));      
 
@@ -97,8 +97,8 @@ passport.deserializeUser((user,done)=>{
 app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
 
 app.get("/auth/google/callback",passport.authenticate("google",{
-    successRedirect:"https://ecomevia.netlify.app/",
-    failureRedirect:"https://ecomevia.netlify.app/"
+    successRedirect:"http://localhost:3000",
+    failureRedirect:"http://localhost:3000"
 }))
 
 //get google login data
@@ -115,7 +115,7 @@ app.get("/login/success",async(req,res)=>{
 app.get("/logout",(req,res,next)=>{
     req.logOut(function(err){
         if(err){return next(err)}
-        res.redirect("https://ecomevia.netlify.app/")
+        res.redirect("localhost:3000")
     })
 })
 
@@ -388,4 +388,3 @@ app.post("/getcart",fetchUser,async(req,res)=>{
 app.listen(port,()=>{
     console.log("server is listening on port " + port)
 })
-
