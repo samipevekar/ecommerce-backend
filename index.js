@@ -16,7 +16,7 @@ const clientsecret = "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"
 
 app.use(express.json());    // response data will automatically parsed
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000',"https://ecommerce-r9t5.onrender.com"],
     credentials: true 
 }));      
 
