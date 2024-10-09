@@ -385,6 +385,16 @@ app.post("/getcart",fetchUser,async(req,res)=>{
     res.json(userData.cartData)
 })
 
+cron.schedule('*/4 * * * *', async () => {
+    try {
+        console.log('Pinging server...');
+        await axios.get('https://ecommerce-backend-ccoa.onrender.com');
+        console.log('Server pinged successfully!');
+    } catch (error) {
+        console.error('Error pinging the server:', error);
+    }
+});
+
 app.listen(port,()=>{
     console.log("server is listening on port " + port)
 })
